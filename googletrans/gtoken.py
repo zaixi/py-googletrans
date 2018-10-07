@@ -38,8 +38,9 @@ class TokenAcquirer(object):
         950629.577246
     """
 
-    RE_TKK = re.compile(r'TKK=eval\(\'\(\(function\(\)\{(.+?)\}\)\(\)\)\'\);',
-                        re.DOTALL)
+    #RE_TKK = re.compile(r'TKK=eval\(\'\(\(function\(\)\{(.+?)\}\)\(\)\)\'\);',
+    #                    re.DOTALL)
+    RE_TKK = re.compile(r'TKK=\'(.+?)\'')
 
     def __init__(self, tkk='0', session=None, host='translate.google.com'):
         self.session = session or requests.Session()
@@ -50,6 +51,9 @@ class TokenAcquirer(object):
         """update tkk
         """
         # we don't need to update the base TKK value when it is still valid
+        r = self.session.get(self.host)
+        self.tkk = self.RE_TKK.findall(r.text)[0]
+
         now = math.floor(int(time.time() * 1000) / 3600000.0)
         if self.tkk and int(self.tkk.split('.')[0]) == now:
             return
